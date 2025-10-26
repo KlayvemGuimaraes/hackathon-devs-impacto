@@ -8,13 +8,20 @@ import {
   Lightbulb,
   TrendingUp,
   Clock,
-  AlertCircle
+  AlertCircle,
+  Building2
 } from 'lucide-react'
 import Button from '../components/ui/Button'
 import { Textarea } from '../components/ui/Input'
 import Card, { CardContent, CardHeader } from '../components/ui/Card'
 import Badge from '../components/ui/Badge'
 import { analyzeUserState, generateInsights } from '../core/core-ai'
+import { 
+  ServiceCard, 
+  RoadmapCard, 
+  AnalysisCard, 
+  RecommendationsCard 
+} from '../components/ui/HealthServiceComponents'
 
 export default function ChatIA() {
   const [messages, setMessages] = useState([
@@ -27,8 +34,41 @@ export default function ChatIA() {
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const messagesEndRef = useRef(null)
   const [showInsights, setShowInsights] = useState(false)
+  const [userId, setUserId] = useState(null)
+  const messagesEndRef = useRef(null)
+
+  // Carrega histórico do banco ao montar componente
+  useEffect(() => {
+    const loadHistory = async () => {
+      const { generateUserId, getUserConversations, getUserProfile } = await import('../lib/supabase')
+      const currentUserId = generateUserId()
+      setUserId(currentUserId)
+      
+      // Busca histórico de conversas
+      const { data: conversations } = await getUserConversations(currentUserId, 20)
+      
+      if (conversations && conversations.length > 0) {
+        // Busca perfil do usuário
+        const { data: profile } = await getUserProfile(currentUserId)
+        
+        // Adiciona mensagem de boas-vindas personalizada se tiver perfil
+        if (profile && profile.name) {
+          setMessages([{
+            id: 0,
+            type: 'ai',
+            content: `Olá ${profile.name}! 👋 Bem-vindo de volta! Vi que já conversamos antes. Como posso te ajudar hoje?`,
+            timestamp: new Date(),
+          }])
+        }
+        
+        console.log(`📚 Histórico carregado: ${conversations.length} conversas anteriores`)
+        console.log('👤 Perfil:', profile)
+      }
+    }
+    
+    loadHistory()
+  }, [])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -53,23 +93,79 @@ export default function ChatIA() {
     setIsLoading(true)
 
     try {
-      // Chama a IA mockada
-      const response = await analyzeUserState(input)
+      // Prepara histórico COMPLETO incluindo do banco de dados
+      const { getUserConversations } = await import('../lib/supabase')
+      const { data: pastConversations } = await getUserConversations(userId, 10)
+      
+      // Cria histórico combinado: conversas antigas + conversa atual
+      const conversationHistory = []
+      
+      // Adiciona conversas antigas do banco
+      if (pastConversations && pastConversations.length > 0) {
+        pastConversations.reverse().forEach(conv => {
+          conversationHistory.push({
+            role: 'user',
+            content: conv.user_message
+          })
+          conversationHistory.push({
+            role: 'assistant',
+            content: conv.ai_response.mensagem_humanizada || JSON.stringify(conv.ai_response)
+          })
+        })
+      }
+      
+      // Adiciona mensagens da sessão atual
+      messages
+        .filter(m => m.type !== 'system' && m.id !== 1) // Ignora mensagem inicial
+        .forEach(m => {
+          conversationHistory.push({
+            role: m.type === 'user' ? 'user' : 'assistant',
+            content: m.type === 'user' ? m.content : m.data?.mensagem_humanizada || m.content
+          })
+        })
+
+      console.log(`🧠 Enviando ${conversationHistory.length} mensagens de contexto para IA`)
+
+      // Chama a IA real com OpenAI e histórico completo
+      const response = await analyzeUserState(input, conversationHistory, userId)
 
       const aiMessage = {
         id: messages.length + 2,
         type: 'ai',
-        content: response.suggestion,
+        content: response.mensagem_humanizada || 'Analisando sua situação...',
         data: response,
         timestamp: new Date(),
       }
 
       setMessages(prev => [...prev, aiMessage])
+      
+      // Gerar e atualizar resumo médico após cada conversa
+      setTimeout(async () => {
+        try {
+          const { generateMedicalSummary } = await import('../core/core-ai')
+          const { updateMedicalSummary } = await import('../lib/supabase')
+          
+          // Busca conversas recentes para gerar resumo
+          const { data: recentConvs, error: fetchError } = await getUserConversations(userId, 20)
+          
+          if (!fetchError && recentConvs && recentConvs.length > 0) {
+            const { success, summary } = await generateMedicalSummary(userId, recentConvs)
+            
+            if (success) {
+              await updateMedicalSummary(userId, summary)
+              console.log('✅ Dashboard atualizado! Recarregue para ver mudanças.')
+            }
+          }
+        } catch (error) {
+          console.error('❌ Erro ao atualizar resumo:', error)
+        }
+      }, 2000) // 2 segundos após a resposta
     } catch (error) {
+      console.error('Erro ao processar mensagem:', error)
       const errorMessage = {
         id: messages.length + 2,
         type: 'ai',
-        content: 'Desculpe, tive um problema ao processar sua mensagem. Tente novamente.',
+        content: 'Desculpe, tive um problema ao processar sua mensagem. Por favor, tente novamente em alguns instantes.',
         timestamp: new Date(),
         error: true,
       }
@@ -92,10 +188,10 @@ export default function ChatIA() {
   }
 
   const quickPrompts = [
-    'Estou me sentindo ansioso',
-    'Preciso de motivação para treinar',
-    'O que comer para ter mais energia?',
-    'Como melhorar meu sono?',
+    'Estou sedentário e com sobrepeso, preciso de ajuda',
+    'Tenho diabetes e não sei como começar a me exercitar',
+    'Estou ansioso e com dificuldade para dormir',
+    'Quero melhorar minha alimentação mas não sei por onde começar',
   ]
 
   return (
@@ -166,49 +262,70 @@ export default function ChatIA() {
                               {message.content}
                             </p>
 
-                            {/* AI Response Details */}
-                            {message.data && (
-                              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                                <div className="flex items-center space-x-2 mb-2">
-                                  <Badge variant="lime" className="text-xs">
-                                    {message.data.mood}
-                                  </Badge>
-                                  <Badge variant="default" className="text-xs">
-                                    Nível: {message.data.level}
-                                  </Badge>
-                                </div>
-                                
-                                {message.data.activities && (
-                                  <div className="mt-2">
-                                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
-                                      Atividades sugeridas:
+                            {/* AI Response Details - New Format */}
+                            {message.data && !message.data.fallback && (
+                              <div className="mt-4 space-y-4">
+                                {/* Analysis Summary */}
+                                {message.data.analise && (
+                                  <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <Building2 className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                        Análise da Situação
+                                      </p>
+                                    </div>
+                                    {message.data.analise.condicoes_identificadas && message.data.analise.condicoes_identificadas.length > 0 && (
+                                      <div className="flex flex-wrap gap-1 mt-2">
+                                        {message.data.analise.condicoes_identificadas.map((condition, i) => (
+                                          <Badge key={i} variant="default" className="text-xs">
+                                            {condition}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Recommended Services */}
+                                {message.data.servicos_detalhados && message.data.servicos_detalhados.length > 0 && (
+                                  <div className="p-3 bg-lime-50 dark:bg-lime-950 rounded-lg border border-lime-200 dark:border-lime-800">
+                                    <p className="text-xs font-semibold text-lime-900 dark:text-lime-100 mb-2">
+                                      🏥 {message.data.servicos_detalhados.length} Serviço(s) Público(s) Recomendado(s)
                                     </p>
-                                    <div className="flex flex-wrap gap-1">
-                                      {message.data.activities.map((activity, i) => (
-                                        <span
-                                          key={i}
-                                          className="text-xs px-2 py-1 bg-white dark:bg-gray-700 rounded-full text-gray-700 dark:text-gray-300"
-                                        >
-                                          {activity}
-                                        </span>
+                                    <div className="space-y-2">
+                                      {message.data.servicos_detalhados.slice(0, 2).map((service, i) => (
+                                        <div key={i} className="text-xs text-lime-800 dark:text-lime-200">
+                                          <strong>• {service.name}</strong>
+                                          <p className="text-xs text-lime-700 dark:text-lime-300 ml-2 mt-1">
+                                            {service.description}
+                                          </p>
+                                        </div>
                                       ))}
                                     </div>
+                                    {message.data.servicos_detalhados.length > 2 && (
+                                      <p className="text-xs text-lime-600 dark:text-lime-400 mt-2">
+                                        +{message.data.servicos_detalhados.length - 2} outros serviços recomendados
+                                      </p>
+                                    )}
                                   </div>
                                 )}
 
-                                {message.data.nutrition && (
-                                  <div className="mt-2">
-                                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-                                      💚 Nutrição: <span className="font-normal">{message.data.nutrition}</span>
+                                {/* Quick Roadmap Preview */}
+                                {message.data.roadmap && (
+                                  <div className="p-3 bg-primary-50 dark:bg-primary-950 rounded-lg border border-primary-200 dark:border-primary-800">
+                                    <p className="text-xs font-semibold text-primary-900 dark:text-primary-100 mb-2">
+                                      🗺️ Próximos Passos
                                     </p>
-                                  </div>
-                                )}
-
-                                {message.data.exercise && (
-                                  <div className="mt-1">
-                                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-                                      💪 Exercício: <span className="font-normal">{message.data.exercise}</span>
-                                    </p>
+                                    {message.data.roadmap.curto_prazo && message.data.roadmap.curto_prazo.length > 0 && (
+                                      <ul className="space-y-1">
+                                        {message.data.roadmap.curto_prazo.slice(0, 2).map((item, i) => (
+                                          <li key={i} className="text-xs text-primary-800 dark:text-primary-200 flex items-start">
+                                            <span className="mr-2">✓</span>
+                                            <span>{item}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    )}
                                   </div>
                                 )}
                               </div>
@@ -289,6 +406,28 @@ export default function ChatIA() {
 
             {/* Sidebar */}
             <div className="space-y-6">
+              {/* User Info Card */}
+              {userId && (
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <User className="w-5 h-5 text-primary-600" />
+                      <h3 className="font-semibold text-gray-900 dark:text-white">Seu Perfil</h3>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 text-sm">
+                      <p className="text-gray-600 dark:text-gray-300">
+                        <strong>ID:</strong> {userId.substring(0, 20)}...
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        💾 Suas conversas são salvas automaticamente e a IA lembra de tudo que você já contou!
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Info Card */}
               <Card>
                 <CardHeader>
@@ -398,6 +537,53 @@ export default function ChatIA() {
               </Card>
             </div>
           </div>
+
+          {/* Detailed Analysis Section - Shows after AI response */}
+          {messages.length > 1 && messages[messages.length - 1].type === 'ai' && messages[messages.length - 1].data && !messages[messages.length - 1].data.fallback && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="mt-8"
+            >
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                📋 Análise Detalhada e Recomendações
+              </h2>
+
+              <div className="grid lg:grid-cols-2 gap-6">
+                {/* Analysis Card */}
+                {messages[messages.length - 1].data.analise && (
+                  <AnalysisCard analise={messages[messages.length - 1].data.analise} />
+                )}
+
+                {/* Roadmap Card */}
+                {messages[messages.length - 1].data.roadmap && (
+                  <RoadmapCard roadmap={messages[messages.length - 1].data.roadmap} />
+                )}
+
+                {/* Recommendations Card */}
+                {messages[messages.length - 1].data.recomendacoes && (
+                  <div className="lg:col-span-2">
+                    <RecommendationsCard recomendacoes={messages[messages.length - 1].data.recomendacoes} />
+                  </div>
+                )}
+
+                {/* Services Cards */}
+                {messages[messages.length - 1].data.servicos_detalhados && messages[messages.length - 1].data.servicos_detalhados.length > 0 && (
+                  <div className="lg:col-span-2">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                      🏥 Serviços Públicos Recomendados para Você
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {messages[messages.length - 1].data.servicos_detalhados.map((service, index) => (
+                        <ServiceCard key={service.id} service={service} index={index} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
     </div>

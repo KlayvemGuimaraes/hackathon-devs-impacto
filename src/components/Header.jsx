@@ -56,6 +56,16 @@ export default function Header() {
             >
               Chat IA
             </Link>
+            <Link
+              to="/dashboard"
+              className={`text-sm font-medium transition-colors hover:text-primary-600 dark:hover:text-primary-400 ${
+                location.pathname === '/dashboard' 
+                  ? 'text-primary-600 dark:text-primary-400' 
+                  : 'text-gray-600 dark:text-gray-300'
+              }`}
+            >
+              Dashboard
+            </Link>
             <a
               href="#sobre"
               className="text-sm font-medium text-gray-600 dark:text-gray-300 transition-colors hover:text-primary-600 dark:hover:text-primary-400"
