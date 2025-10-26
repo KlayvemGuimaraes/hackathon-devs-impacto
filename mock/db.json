@@ -1,0 +1,190 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Maria Silva",
+      "email": "maria@email.com",
+      "avatar": "https://ui-avatars.com/api/?name=Maria+Silva&background=1890ff&color=fff",
+      "createdAt": "2025-01-15"
+    },
+    {
+      "id": 2,
+      "name": "João Santos",
+      "email": "joao@email.com",
+      "avatar": "https://ui-avatars.com/api/?name=João+Santos&background=a0d911&color=fff",
+      "createdAt": "2025-02-20"
+    }
+  ],
+  "habits": [
+    {
+      "id": 1,
+      "userId": 1,
+      "type": "exercise",
+      "title": "Caminhada matinal",
+      "description": "30 minutos de caminhada",
+      "frequency": "daily",
+      "completed": 15,
+      "streak": 7
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "type": "nutrition",
+      "title": "Beber 2L de água",
+      "description": "Manter hidratação",
+      "frequency": "daily",
+      "completed": 20,
+      "streak": 12
+    },
+    {
+      "id": 3,
+      "userId": 1,
+      "type": "mental",
+      "title": "Meditação",
+      "description": "10 minutos de meditação guiada",
+      "frequency": "daily",
+      "completed": 8,
+      "streak": 4
+    }
+  ],
+  "nutrition": [
+    {
+      "id": 1,
+      "name": "Café da manhã energético",
+      "description": "Aveia com frutas, castanhas e mel",
+      "calories": 350,
+      "protein": 12,
+      "carbs": 55,
+      "fats": 10,
+      "benefits": ["Energia sustentada", "Rico em fibras", "Antioxidantes"],
+      "category": "breakfast"
+    },
+    {
+      "id": 2,
+      "name": "Almoço balanceado",
+      "description": "Frango grelhado, arroz integral, feijão e salada",
+      "calories": 550,
+      "protein": 45,
+      "carbs": 60,
+      "fats": 12,
+      "benefits": ["Proteína de qualidade", "Carboidratos complexos", "Vitaminas"],
+      "category": "lunch"
+    },
+    {
+      "id": 3,
+      "name": "Jantar leve",
+      "description": "Sopa de legumes com peixe",
+      "calories": 320,
+      "protein": 28,
+      "carbs": 30,
+      "fats": 8,
+      "benefits": ["Digestão fácil", "Ômega-3", "Baixa caloria"],
+      "category": "dinner"
+    }
+  ],
+  "workouts": [
+    {
+      "id": 1,
+      "name": "Treino Cardio Iniciante",
+      "duration": 30,
+      "intensity": "moderate",
+      "exercises": [
+        {"name": "Caminhada rápida", "duration": 10, "calories": 50},
+        {"name": "Polichinelos", "duration": 5, "calories": 40},
+        {"name": "Corrida leve", "duration": 10, "calories": 80},
+        {"name": "Alongamento", "duration": 5, "calories": 15}
+      ],
+      "totalCalories": 185,
+      "benefits": ["Saúde cardiovascular", "Queima de gordura", "Energia"]
+    },
+    {
+      "id": 2,
+      "name": "Força e Resistência",
+      "duration": 45,
+      "intensity": "high",
+      "exercises": [
+        {"name": "Flexões", "sets": 3, "reps": 12, "calories": 30},
+        {"name": "Agachamentos", "sets": 3, "reps": 15, "calories": 45},
+        {"name": "Prancha", "duration": 3, "calories": 25},
+        {"name": "Burpees", "sets": 3, "reps": 10, "calories": 60}
+      ],
+      "totalCalories": 160,
+      "benefits": ["Ganho muscular", "Metabolismo acelerado", "Força"]
+    }
+  ],
+  "mentalHealth": [
+    {
+      "id": 1,
+      "type": "meditation",
+      "title": "Meditação Mindfulness",
+      "description": "Foco na respiração e momento presente",
+      "duration": 10,
+      "difficulty": "beginner",
+      "benefits": ["Reduz ansiedade", "Melhora foco", "Autoconhecimento"]
+    },
+    {
+      "id": 2,
+      "type": "breathing",
+      "title": "Respiração 4-7-8",
+      "description": "Inspire 4s, segure 7s, expire 8s",
+      "duration": 5,
+      "difficulty": "beginner",
+      "benefits": ["Acalma sistema nervoso", "Reduz estresse", "Melhora sono"]
+    },
+    {
+      "id": 3,
+      "type": "journaling",
+      "title": "Diário de Gratidão",
+      "description": "Escreva 3 coisas pelas quais é grato",
+      "duration": 10,
+      "difficulty": "beginner",
+      "benefits": ["Aumenta positividade", "Perspectiva", "Bem-estar emocional"]
+    }
+  ],
+  "testimonials": [
+    {
+      "id": 1,
+      "name": "Ana Paula",
+      "role": "Professora",
+      "avatar": "https://ui-avatars.com/api/?name=Ana+Paula&background=667eea&color=fff",
+      "text": "O hub mudou minha rotina. Consegui reduzir minha ansiedade em 60% com as práticas diárias de mindfulness.",
+      "rating": 5
+    },
+    {
+      "id": 2,
+      "name": "Carlos Eduardo",
+      "role": "Desenvolvedor",
+      "avatar": "https://ui-avatars.com/api/?name=Carlos+Eduardo&background=f093fb&color=fff",
+      "text": "A IA conseguiu identificar padrões no meu sono e sugerir mudanças que realmente funcionaram. Incrível!",
+      "rating": 5
+    },
+    {
+      "id": 3,
+      "name": "Juliana Costa",
+      "role": "Estudante",
+      "avatar": "https://ui-avatars.com/api/?name=Juliana+Costa&background=a0d911&color=fff",
+      "text": "Nunca pensei que cuidar da saúde mental poderia ser tão acessível e prático. Uso todos os dias!",
+      "rating": 5
+    }
+  ],
+  "aiResponses": [
+    {
+      "id": 1,
+      "prompt": "Estou me sentindo ansioso",
+      "response": {
+        "mood": "ansioso",
+        "level": "moderado",
+        "suggestion": "Tente uma caminhada leve de 15 minutos e pratique respiração profunda (4-7-8).",
+        "activities": ["Caminhada leve", "Respiração 4-7-8", "Meditação guiada"]
+      }
+    }
+  ],
+  "stats": {
+    "totalUsers": 15420,
+    "habitsCompleted": 234567,
+    "hoursOfExercise": 45890,
+    "mealsTracked": 123456,
+    "meditationMinutes": 67890
+  }
+}
+
