@@ -5,11 +5,11 @@ export default function Input({ className, ...props }) {
     <input
       className={cn(
         'w-full px-4 py-3 rounded-lg',
-        'bg-white dark:bg-gray-900',
+        'bg-white dark:bg-black',
         'border border-gray-300 dark:border-gray-700',
-        'text-gray-900 dark:text-gray-100',
-        'placeholder:text-gray-400 dark:placeholder:text-gray-500',
-        'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
+        'text-gray-900 dark:text-white',
+        'placeholder:text-gray-500 dark:placeholder:text-gray-400',
+        'focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:border-transparent',
         'transition-all duration-200',
         className
       )}
@@ -23,11 +23,11 @@ export function Textarea({ className, ...props }) {
     <textarea
       className={cn(
         'w-full px-4 py-3 rounded-lg',
-        'bg-white dark:bg-gray-900',
+        'bg-white dark:bg-black',
         'border border-gray-300 dark:border-gray-700',
-        'text-gray-900 dark:text-gray-100',
-        'placeholder:text-gray-400 dark:placeholder:text-gray-500',
-        'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
+        'text-gray-900 dark:text-white',
+        'placeholder:text-gray-500 dark:placeholder:text-gray-400',
+        'focus:outline-none focus:ring-2 focus:ring-[#0070F3] focus:border-transparent',
         'transition-all duration-200',
         'resize-none',
         className

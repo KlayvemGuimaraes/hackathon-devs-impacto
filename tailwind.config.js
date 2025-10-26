@@ -8,29 +8,24 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: {
-          50: '#e6f7ff',
-          100: '#bae7ff',
-          200: '#91d5ff',
-          300: '#69c0ff',
-          400: '#40a9ff',
-          500: '#1890ff',
-          600: '#096dd9',
-          700: '#0050b3',
-          800: '#003a8c',
-          900: '#002766',
+        // Vercel Blue + White/Black
+        vercel: {
+          blue: '#0070F3',
+          'blue-dark': '#0761D1',
+          'blue-light': '#3291FF',
         },
-        lime: {
-          50: '#fcffe6',
-          100: '#f4ffb8',
-          200: '#eaff8f',
-          300: '#d3f261',
-          400: '#bae637',
-          500: '#a0d911',
-          600: '#7cb305',
-          700: '#5b8c00',
-          800: '#3f6600',
-          900: '#254000',
+        primary: {
+          50: '#EFF6FF',    // Quase branco com toque azul
+          100: '#DBEAFE',
+          200: '#BFDBFE',
+          300: '#93C5FD',
+          400: '#60A5FA',
+          500: '#3B82F6',
+          600: '#0070F3',   // Vercel Blue
+          700: '#0761D1',   // Azul escuro
+          800: '#1E3A8A',   // Azul muito escuro
+          900: '#1E293B',   // Quase preto azulado
+          950: '#0A0F1E',   // Preto azulado
         },
       },
       fontFamily: {
@@ -41,7 +36,9 @@ export default {
         'fade-in': 'fadeIn 0.6s ease-in-out',
         'slide-up': 'slideUp 0.6s ease-out',
         'slide-down': 'slideDown 0.6s ease-out',
+        'scale-in': 'scaleIn 0.3s ease-out',
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'bounce-subtle': 'bounceSubtle 2s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -56,6 +53,19 @@ export default {
           '0%': { transform: 'translateY(-20px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
         },
+        scaleIn: {
+          '0%': { transform: 'scale(0.9)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        bounceSubtle: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-5px)' },
+        },
+      },
+      boxShadow: {
+        'soft': '0 2px 8px rgba(0, 0, 0, 0.04)',
+        'medium': '0 4px 16px rgba(0, 0, 0, 0.06)',
+        'strong': '0 8px 32px rgba(0, 0, 0, 0.08)',
       },
     },
   },
